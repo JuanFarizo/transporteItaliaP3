@@ -1,0 +1,31 @@
+ FD  ARQRFAMA  BLOCK 1346 RECORD 1346 LABEL RECORD IS OMITTED.
+       01  REQR.
+           03 QR-TIPOCOMP         PIC 999.
+           03 QR-LETRA            PIC X.
+           03 QR-PREFIJO          PIC 9999.
+           03 QR-NUMERO           PIC 99999999.
+ 24        03 QR-FECHA            PIC 99999999.
+------     03 QR-MA-CUENTA           PIC 99999999.
+           03 QR-MA-NOMBRE           PIC X(30).
+           03 QR-MA-DOMICILIO        PIC X(30).
+           03 QR-MA-LOCALIDAD        PIC X(30).
+           03 QR-MA-CUIT             PIC 99999999999.
+124        03 QR-MA-CONDICION-IVA    PIC X(15).
+------     03 QR-TABLA.
+960           05 QR-RENGLON          PIC X(80) OCCURS 12 TIMES.
+------     03 QR-SUB-TOTAL        PIC 9(10)V99.
+           03 QR-IVA              PIC 9(10)V99.
+           03 QR-IVA-NO-INSCRIPTO PIC 9(10)V99.
+           03 QR-EXENTO           PIC 9(10)V99.
+ 60        03 QR-TOTAL            PIC 9(10)V99.
+------     03 QR-LO-DA-VUELTA        PIC X.
+           03 QR-RE-CUENTA           PIC 99999999.
+           03 QR-RE-NOMBRE           PIC X(30).
+           03 QR-RE-DOMICILIO        PIC X(30).
+           03 QR-RE-LOCALIDAD        PIC X(30).
+           03 QR-RE-CUIT             PIC 99999999999.
+125        03 QR-RE-CONDICION-IVA    PIC X(15).
+------     03 QR-REDESPACHO       PIC X(30).
+           03 QR-CAE              PIC 9(14).
+ 52        03 QR-VTOCAE           PIC 9(8).
+------*           25 + 124 + 900 + 60 + 125 + 52 = 1286
