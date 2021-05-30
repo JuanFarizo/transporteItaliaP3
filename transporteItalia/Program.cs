@@ -8,6 +8,7 @@ using System.Diagnostics;
 using Newtonsoft.Json;
 using ZXing;
 using System.Drawing;
+using System.Globalization;
 
 namespace transporteItalia
 {
@@ -32,26 +33,19 @@ namespace transporteItalia
         /////////////////////////
         static void Main(string[] args)
         {
-
-
-
-
             string path = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "IN_FACTU");
             string textToParse = System.IO.File.ReadAllText(path);
             //int paginas = textToParse.Length / 6615;
 
-
             //Creamos un documento unico
             PdfDocument document = new PdfDocument();
             document.Info.Title = "Transporte Italia - Arrecifes";
-
 
             document.Options.FlateEncodeMode = PdfFlateEncodeMode.BestCompression;
             pdfGeneratorTransItalia(textToParse, document);
             string filename = "pdfTransporteItalia.pdf";
 
             document.Save(filename);
-
 
             // File.Delete(filename);
             System.Diagnostics.Process.Start(filename);
@@ -66,8 +60,6 @@ namespace transporteItalia
             //  process.WaitForExit();
 
             // File.Delete(filename);
-
-
         }
 
         static void testImpresion()
@@ -133,8 +125,7 @@ namespace transporteItalia
             total = total.Insert(total.Length - 2, ",");
 
             String loDaVuelta = pagina.Substring(pivote += 12, 1);
-
-            //
+            
             String re_cuenta = pagina.Substring(pivote += 1, 8);
             String re_nombre = pagina.Substring(pivote += 8, 30);
             String re_domicilio = pagina.Substring(pivote += 30, 30);
@@ -253,11 +244,15 @@ namespace transporteItalia
 
         private static void DrawQR(XGraphics gfx, String fecha, String cuit, int prefijo, int tipoComp, int numero, Double importe, String cae)
         {
-            //TODO GENERAR EL JSON PARA EL QR {https://www.afip.gob.ar/fe/qr/especificaciones.asp}
+            //Preparo la fecha
+            DateTime d = DateTime.ParseExact(fecha, "dd/MM/yyyy", CultureInfo.InvariantCulture);
+            var fechaParseada = d.ToString("yyyy-MM-dd");
+            //Inicio el string que va a ir en el QR
             String qr = "https://www.afip.gob.ar/fe/qr/?p=";
+            //Creo un objeto del tipo QRAfip con todo lo que me piden los delincuentes
             QRAfip qrAFIP = new QRAfip(
                 1,//version
-                fecha, //fecha
+                fechaParseada, //fecha
                 cuit,//cuit ma o re
                 prefijo, //pto de venta
                 tipoComp,
@@ -268,9 +263,17 @@ namespace transporteItalia
                 "E",
                 cae
                 );
+            //Creo el JSON
             string jsonQRAfip = JsonConvert.SerializeObject(qrAFIP);
-            qr += jsonQRAfip;
-            Console.WriteLine("algo");
+            //Lo paso a base64
+            var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(jsonQRAfip);
+            var jsonBase64 = System.Convert.ToBase64String(plainTextBytes);
+            //Se lo agrego al qr para completarlo
+            qr += jsonBase64;
+
+            //Con esta prueba vemos si el JSON se paso a base64 Correctamente.
+            /*var base64EncodedBytes = System.Convert.FromBase64String(jsonBase64);
+            var pruebadecode = System.Text.Encoding.UTF8.GetString(base64EncodedBytes);*/
 
             //Draw QR1
             var bcWriter = new BarcodeWriter
@@ -305,6 +308,8 @@ namespace transporteItalia
             //Double nroDocRec;
             String tipoCodAut;
             String codAut;
+
+            //Constructor
             public QRAfip(Int32 ver,
                 String fecha,
                 String cuit,
@@ -314,7 +319,7 @@ namespace transporteItalia
                 Double importe,
                 String moneda,
                 String ctz,
-                // Int32 tipoDocRec,
+                //Int32 tipoDocRec,
                 //Double nroDocRec,
                 String tipoCodAut,
                 String codAut
