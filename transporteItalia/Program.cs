@@ -30,127 +30,16 @@ namespace transporteItalia
         static void Main(string[] args)
         {
             
-            string stdIn = "";
-            foreach (string value in args) stdIn += value;
-            string ruta = stdIn.Substring(0,2);
-            string secuencia = stdIn.Substring(2,8);
-            string cantidad = stdIn.Substring(12, 4);
-            string ultimoArchivo = stdIn.Substring(16, 23);
-            //string ruta = "02";
-            //string secuencia = "0";
-            bool isNoventaYOcho;
-
-            //ruta = "98";
-            var path = "";
-            if (ruta == "98")
-            {
-                //path = @"C:\Users\farins-win\source\repos\MergePDF\MergePDF\Output\ppdd-t2.txt";
-                path = @"I:\_pdf_col\ppdd-t2.txt";
-                isNoventaYOcho = true;
-            }
-            else
-            {
-                //path = @"C:\Users\farins-win\source\repos\MergePDF\MergePDF\Output\ppdd.txt";
-                path = @"I:\_pdf_col\ppdd.txt";
-                isNoventaYOcho = false;
-            }
-
+            string path = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "IN_FACTU");
             string textToParse = System.IO.File.ReadAllText(path);
-            int paginas;
-            if (isNoventaYOcho)
-            {
-                 paginas = textToParse.Length / 6615;
-            }
-            else
-            {
-                 paginas = textToParse.Length / 9010;
-            }
-            int cont = 0;
-            SortedDictionary<string, string> paginasDeRuta = new SortedDictionary<string, string>();
-
-            //Recorrer todo el txt y quedarme con las que coinciden con la ruta
-            string pagina;
-            string lspSecuencia;
-            string rutaAEvaluar;
-            for (int i = 0; i < paginas; i++)
-            {
-                
-                //las rutas que coinciden las agregamos dentro de una lista
-                if (isNoventaYOcho)
-                {
-                    if (i != 0) cont += 6615;
-                     pagina = textToParse.Substring(cont, 6615);
-                     lspSecuencia = pagina.Substring(280, 8);
-                     rutaAEvaluar = pagina.Substring(278, 2);
-                }
-                else
-                {
-                    if (i != 0) cont += 9010;
-                     pagina = textToParse.Substring(cont, 9010);
-                     lspSecuencia = pagina.Substring(663, 8);
-                     rutaAEvaluar = pagina.Substring(661, 2);
-                }
-                if (isNoventaYOcho)
-                {
-                    paginasDeRuta.Add(lspSecuencia, pagina);
-                }
-                else { if (String.Compare(rutaAEvaluar, ruta) == 0) paginasDeRuta.Add(lspSecuencia, pagina); }
-            }
-
-
+            int paginas = textToParse.Length / 6615;
+               
 
             //Creamos un documento unico
             PdfDocument document = new PdfDocument();
             document.Info.Title = "Cooperativa Electrica Colón - Buenos Aires";
 
-            PdfPage page = document.AddPage();
-            page.Size = PdfSharp.PageSize.A4;
-            XGraphics gfxPrimerPagina = XGraphics.FromPdfPage(page);
-            gfxPrimerPagina.DrawString("RUTA NUM: " + ruta, fontCourierBold20, XBrushes.Black, 20, 30);
-            gfxPrimerPagina.DrawString("CANTIDAD DE FACTURAS: " + cantidad, fontCourierBold20, XBrushes.Black, 20, 55);
-            gfxPrimerPagina.DrawString("ULTIMA FACTURA: " + ultimoArchivo, fontCourierBold20, XBrushes.Black, 20, 80);
 
-            if (int.Parse(secuencia).ToString() == "0")
-            {
-                foreach(string pag in paginasDeRuta.Values)
-                {
-                    if (ruta == "98")
-                    {
-                        pdfGeneratorGrandesConsumos(pag, document);
-                        Console.WriteLine("Procesando: " + pag.Substring(0, 8) + "_" + pag.Substring(278, 10) + ".pdf");
-                    }
-                    else
-                    {
-                    pdfGenerator(pag, document);
-                    Console.WriteLine("Procesando: " + pag.Substring(0, 8) + "_" + pag.Substring(661, 10) + ".pdf");
-                    }
-                }
-            }
-            else
-            {
-                bool band = false;
-                foreach (var pag2 in paginasDeRuta)
-                {
-                    if(pag2.Key.Substring(2,8).Equals(secuencia))
-                    {
-                        band = true;
-                    }
-                    if (band)
-                    {
-                        if(ruta == "98")
-                        {
-                            pdfGeneratorGrandesConsumos(pag2.Value, document);
-                            Console.WriteLine("Procesando: " + pag2.Value.Substring(0, 8) + "_" + pag2.Value.Substring(278,10) + ".pdf");
-                        }
-                        else
-                        {
-                        pdfGenerator(pag2.Value, document);
-                        Console.WriteLine("Procesando: " + pag2.Value.Substring(0, 8) + "_" + pag2.Value.Substring(661, 10) + ".pdf");
-                        }
-                    }
-                }
-            }
-            
             document.Options.FlateEncodeMode = PdfFlateEncodeMode.BestCompression;
             string filename = "PdfPrueba.pdf";
 
