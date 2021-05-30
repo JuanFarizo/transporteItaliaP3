@@ -11,7 +11,7 @@ using System.Drawing.Printing;
 using System.Diagnostics;
 using System.Threading;
 
-namespace MergePDF
+namespace transporteItalia
 {
     class Program
     {
