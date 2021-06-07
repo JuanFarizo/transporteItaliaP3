@@ -284,12 +284,12 @@ namespace transporteItalia
             var bcWriter = new BarcodeWriter
             {
                 Format = BarcodeFormat.QR_CODE,
-                Options = new ZXing.Common.EncodingOptions
+                Options = new ZXing.QrCode.QrCodeEncodingOptions
                 {
-                    Height = 125,
-                    Width = 125,
-                    PureBarcode = true,
-                    Margin = 0
+                    ErrorCorrection = ZXing.QrCode.Internal.ErrorCorrectionLevel.Q,
+                    Height = 85,
+                    Width = 85,
+            
              
                 },
             };
@@ -297,6 +297,7 @@ namespace transporteItalia
             XImage img = XImage.FromGdiPlusImage((Image)bm);
             img.Interpolate = false;
             gfx.DrawImage(img, 497, 88);
+            gfx.DrawImage(img, 497, 506);
 
 
         }
