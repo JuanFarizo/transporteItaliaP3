@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using ZXing;
 using System.Drawing;
 using System.Globalization;
+using System.Drawing.Imaging;
 
 namespace transporteItalia
 {
@@ -51,14 +52,15 @@ namespace transporteItalia
             string filename = "pdfTransporteItalia.pdf";
 
             document.Save(filename);
+            string pathImpresion = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, filename);
+            printPDF(pathImpresion, filename);
 
-            // File.Delete(filename);
-            System.Diagnostics.Process.Start(filename);
-            string cPrinter = GetDefaultPrinter();
-            string cRun = "PDFlite.exe";
-            string arguments = " -print-to \"" + cPrinter + "\" " + " -print-settings \"" + "1x" + "\" " + filename;
-            string argument = "-print-to-default " + filename;
-            Process process = new Process();
+            //File.Delete(filename);
+            //System.Diagnostics.Process.Start(filename);
+            //string cRun = "PDFlite.exe";
+            //string arguments = " -print-to \"" + cPrinter + "\" " + " -print-settings \"" + "1x" + "\" " + filename;
+            //string argument = "-print-to-default " + filename;
+            //Process process = new Process();
             //process.StartInfo.FileName = cRun;
             // process.StartInfo.Arguments = argument;
             //process.Start();
@@ -67,11 +69,16 @@ namespace transporteItalia
             // File.Delete(filename);
         }
 
-        static void testImpresion()
+        static void printPDF(string path, string filename)
         {
-            PrintDocument test = new System.Drawing.Printing.PrintDocument();
-
-
+            var document = PdfiumViewer.PdfDocument.Load(path);
+            var printDocument = document.CreatePrintDocument();
+            printDocument.PrinterSettings.PrintFileName = filename;
+            printDocument.PrinterSettings.PrinterName = @GetDefaultPrinter();
+            printDocument.DocumentName = filename;
+            printDocument.PrinterSettings.PrintFileName = filename;
+            printDocument.PrintController = new StandardPrintController();
+            printDocument.Print();
         }
 
 
@@ -289,15 +296,16 @@ namespace transporteItalia
                     ErrorCorrection = ZXing.QrCode.Internal.ErrorCorrectionLevel.Q,
                     Height = 85,
                     Width = 85,
-            
-             
+                    Margin = 0,
                 },
             };
             Bitmap bm = bcWriter.Write(qr);
             XImage img = XImage.FromGdiPlusImage((Image)bm);
             img.Interpolate = false;
-            gfx.DrawImage(img, 497, 88);
-            gfx.DrawImage(img, 497, 506);
+            Bitmap Qcbmp = bm.Clone(new Rectangle(Point.Empty, bm.Size), PixelFormat.Format1bppIndexed);
+
+            gfx.DrawImage(Qcbmp, 497, 88);
+            gfx.DrawImage(Qcbmp, 497, 506);
 
 
         }
