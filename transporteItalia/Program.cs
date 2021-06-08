@@ -10,6 +10,7 @@ using ZXing;
 using System.Drawing;
 using System.Globalization;
 using System.Drawing.Imaging;
+using Spire.Pdf;
 
 namespace transporteItalia
 {
@@ -44,7 +45,7 @@ namespace transporteItalia
             //int paginas = textToParse.Length / 6615;
 
             //Creamos un documento unico
-            PdfDocument document = new PdfDocument();
+            PdfSharp.Pdf.PdfDocument document = new PdfSharp.Pdf.PdfDocument();
             document.Info.Title = "Transporte Italia - Arrecifes";
 
             document.Options.FlateEncodeMode = PdfFlateEncodeMode.BestCompression;
@@ -53,7 +54,13 @@ namespace transporteItalia
 
             document.Save(filename);
             string pathImpresion = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, filename);
-            printPDF(pathImpresion, filename);
+
+            Spire.Pdf.PdfDocument doc = new Spire.Pdf.PdfDocument();
+            doc.LoadFromFile("pdfTransporteItalia.pdf");
+            doc.PrintSettings.PrintController = new StandardPrintController();
+            doc.Print();
+            
+            //printPDF(pathImpresion, filename);
 
             //File.Delete(filename);
             //System.Diagnostics.Process.Start(filename);
@@ -69,17 +76,6 @@ namespace transporteItalia
             // File.Delete(filename);
         }
 
-        static void printPDF(string path, string filename)
-        {
-            var document = PdfiumViewer.PdfDocument.Load(path);
-            var printDocument = document.CreatePrintDocument();
-            printDocument.PrinterSettings.PrintFileName = filename;
-            printDocument.PrinterSettings.PrinterName = @GetDefaultPrinter();
-            printDocument.DocumentName = filename;
-            printDocument.PrinterSettings.PrintFileName = filename;
-            printDocument.PrintController = new StandardPrintController();
-            printDocument.Print();
-        }
 
 
         static string GetDefaultPrinter()
@@ -94,7 +90,7 @@ namespace transporteItalia
             return string.Empty;
         }
 
-        private static void pdfGeneratorTransItalia(string pagina, PdfDocument document)
+        private static void pdfGeneratorTransItalia(string pagina, PdfSharp.Pdf.PdfDocument document)
         {
             int pivote = 0;
             PdfPage page = document.AddPage();
@@ -302,10 +298,10 @@ namespace transporteItalia
             Bitmap bm = bcWriter.Write(qr);
             XImage img = XImage.FromGdiPlusImage((Image)bm);
             img.Interpolate = false;
-            Bitmap Qcbmp = bm.Clone(new Rectangle(Point.Empty, bm.Size), PixelFormat.Format1bppIndexed);
-
-            gfx.DrawImage(Qcbmp, 497, 88);
-            gfx.DrawImage(Qcbmp, 497, 506);
+            //Bitmap Qcbmp = bm.Clone(new Rectangle(Point.Empty, bm.Size), PixelFormat.Format1bppIndexed);
+            
+            gfx.DrawImage(img, 497, 88);
+            gfx.DrawImage(img, 497, 506);
 
 
         }
