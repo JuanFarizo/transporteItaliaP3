@@ -4,22 +4,18 @@ using System.IO;
 using PdfSharp.Drawing;
 using PdfSharp.Pdf;
 using System.Drawing.Printing;
-using System.Diagnostics;
 using Newtonsoft.Json;
 using ZXing;
 using System.Drawing;
 using System.Globalization;
-using System.Drawing.Imaging;
-using Spire.Pdf;
+using System.Text;
+using System.Reflection;
 
 namespace transporteItalia
 {
     //TODO acomodar todo con el cuerpo mal, asi se manda y asi para corregir
-            //ver para imprimir el pdf desde una libreria
-            //qr ver los margenes
-
-
-
+    //ver para imprimir el pdf desde una libreria
+    //qr ver los margenes
     class Program
     {
 
@@ -37,31 +33,46 @@ namespace transporteItalia
         public static XFont fontCourierBold9 = new XFont("Courier New", 9, XFontStyle.Bold);
         public static XFont fontCourierBold7 = new XFont("Courier New", 7, XFontStyle.Bold);
         public static XFont fontHelvetica35 = new XFont("Helvetica", 35, XFontStyle.Bold);
+        private static StringBuilder log = new StringBuilder();
         /////////////////////////
         static void Main(string[] args)
         {
             string path = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "IN_FACTU");
-            string textToParse = System.IO.File.ReadAllText(path);
-            //int paginas = textToParse.Length / 6615;
-
+            string textToParse;
+            try
+            {
+                textToParse = System.IO.File.ReadAllText(path);
+            }
+            catch (FileNotFoundException e)
+            {
+                log.Append(DateTime.Now.ToString("MM/dd/yyyy HH:mm") + " " + "PATH NOT FOUND" + "\n");
+                log.Append(DateTime.Now.ToString("MM/dd/yyyy HH:mm") + " " + e.Message + "\n");
+                logWrite(log);
+                throw e;
+            }
             //Creamos un documento unico
             PdfSharp.Pdf.PdfDocument document = new PdfSharp.Pdf.PdfDocument();
             document.Info.Title = "Transporte Italia - Arrecifes";
-
             document.Options.FlateEncodeMode = PdfFlateEncodeMode.BestCompression;
-            pdfGeneratorTransItalia(textToParse, document);
-            string filename = "pdfTransporteItalia.pdf";
+            try
+            {
+                pdfGeneratorTransItalia(textToParse, document);
+            }
+            catch (Exception e2)
+            {
+                log.Append(DateTime.Now.ToString("MM/dd/yyyy HH:mm") + " "+ e2.Message + "\n");
+                logWrite(log);
+                throw e2;
+            }
 
+            string filename = "pdfTransporteItalia.pdf";
             document.Save(filename);
-            string pathImpresion = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, filename);
 
             Spire.Pdf.PdfDocument doc = new Spire.Pdf.PdfDocument();
             doc.LoadFromFile("pdfTransporteItalia.pdf");
             doc.PrintSettings.PrintController = new StandardPrintController();
             doc.Print();
-            
             //printPDF(pathImpresion, filename);
-
             //File.Delete(filename);
             //System.Diagnostics.Process.Start(filename);
             //string cRun = "PDFlite.exe";
@@ -71,9 +82,8 @@ namespace transporteItalia
             //process.StartInfo.FileName = cRun;
             // process.StartInfo.Arguments = argument;
             //process.Start();
-            //  process.WaitForExit();
-
-            // File.Delete(filename);
+            //process.WaitForExit();
+            //File.Delete(filename);
         }
 
 
@@ -90,14 +100,23 @@ namespace transporteItalia
             return string.Empty;
         }
 
-        private static void pdfGeneratorTransItalia(string pagina, PdfSharp.Pdf.PdfDocument document)
+        private static void pdfGeneratorTransItalia(string pagina, PdfSharp.Pdf.PdfDocument document) 
         {
+            if (pagina.Length != 1346)
+            {
+                throw new IndexOutOfRangeException("El documento contiene una cantidad de caracteres inválida");
+            }
             int pivote = 0;
             PdfPage page = document.AddPage();
             page.Size = PdfSharp.PageSize.A4;
 
             // Get an XGraphics object for drawing
             XGraphics gfx = XGraphics.FromPdfPage(page);
+            if (!File.Exists("TransporteItalia.jpg"))
+            {
+                throw  new FileNotFoundException("No se encontro el archivo TransporteItalia.jpg");
+            }
+            
             XImage img = XImage.FromFile("TransporteItalia.jpg");
             gfx.DrawImage(img, 0, 0);
 
@@ -167,7 +186,7 @@ namespace transporteItalia
             {
                 drawNomDomLoc(gfx, re_nombre, re_domicilio, re_localidad);
                 drawNomDomLocIvaCuit(gfx, ma_nombre, ma_domicilio, ma_localidad, ma_condIva, ma_cuit);
-                DrawQR(gfx, fecha,ma_cuit, Int32.Parse(prefijo), Int32.Parse(tipoComprobante), Int32.Parse(numero), Double.Parse(total),cae);
+                DrawQR(gfx, fecha, ma_cuit, Int32.Parse(prefijo), Int32.Parse(tipoComprobante), Int32.Parse(numero), Double.Parse(total),cae);
             }
             else
             {
@@ -283,7 +302,7 @@ namespace transporteItalia
             /*var base64EncodedBytes = System.Convert.FromBase64String(jsonBase64);
             var pruebadecode = System.Text.Encoding.UTF8.GetString(base64EncodedBytes);*/
 
-            //Draw QR1
+            //Generate  & Draw QR
             var bcWriter = new BarcodeWriter
             {
                 Format = BarcodeFormat.QR_CODE,
@@ -298,7 +317,6 @@ namespace transporteItalia
             Bitmap bm = bcWriter.Write(qr);
             XImage img = XImage.FromGdiPlusImage((Image)bm);
             img.Interpolate = false;
-            //Bitmap Qcbmp = bm.Clone(new Rectangle(Point.Empty, bm.Size), PixelFormat.Format1bppIndexed);
             
             gfx.DrawImage(img, 497, 88);
             gfx.DrawImage(img, 497, 506);
@@ -316,7 +334,7 @@ namespace transporteItalia
             Double importe;
             String moneda;
             String ctz;
-            // Int32 tipoDocRec;
+            //Int32 tipoDocRec;
             //Double nroDocRec;
             String tipoCodAut;
             String codAut;
@@ -363,6 +381,12 @@ namespace transporteItalia
             public string Ctz { get => ctz; set => ctz = value; }
             public string TipoCodAut { get => tipoCodAut; set => tipoCodAut = value; }
             public string CodAut { get => codAut; set => codAut = value; }
+        }
+
+        static void logWrite(StringBuilder log)
+        {
+            //Int32 unixTimestamp = (Int32)(DateTime.Now.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+            File.AppendAllText(System.AppDomain.CurrentDomain.BaseDirectory + "log_" + DateTime.Now.ToString("MM-dd-yyyy") + ".txt", log.ToString() + Environment.NewLine);
         }
     }
 }
