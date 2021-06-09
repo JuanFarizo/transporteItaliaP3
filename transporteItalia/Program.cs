@@ -21,6 +21,7 @@ namespace transporteItalia
 
         // Declaracion de fuentes
         public static XFont fontCourier10 = new XFont("Courier New", 10, XFontStyle.Regular);
+        public static XFont fontCourier9 = new XFont("Courier New", 9, XFontStyle.Regular);
         public static XFont fontCourier8 = new XFont("Courier New", 8, XFontStyle.Regular);
         public static XFont fontCourier7 = new XFont("Courier New", 7, XFontStyle.Regular);
         public static XFont fontCourier6 = new XFont("Courier New", 6, XFontStyle.Regular);
@@ -65,13 +66,13 @@ namespace transporteItalia
                 throw e2;
             }
 
-            string filename = "pdfTransporteItalia.pdf";
+            string filename = "Italia.pdf";
             document.Save(filename);
-
+            System.Diagnostics.Process.Start(filename);
             Spire.Pdf.PdfDocument doc = new Spire.Pdf.PdfDocument();
-            doc.LoadFromFile("pdfTransporteItalia.pdf");
+            doc.LoadFromFile("Italia.pdf");
             doc.PrintSettings.PrintController = new StandardPrintController();
-            doc.Print();
+            //doc.Print();
             //printPDF(pathImpresion, filename);
             //File.Delete(filename);
             //System.Diagnostics.Process.Start(filename);
@@ -112,12 +113,12 @@ namespace transporteItalia
 
             // Get an XGraphics object for drawing
             XGraphics gfx = XGraphics.FromPdfPage(page);
-            if (!File.Exists("TransporteItalia.jpg"))
+            if (!File.Exists("Italia.jpg"))
             {
-                throw  new FileNotFoundException("No se encontro el archivo TransporteItalia.jpg");
+                throw  new FileNotFoundException("No se encontro el archivo Italia.jpg");
             }
             
-            XImage img = XImage.FromFile("TransporteItalia.jpg");
+            XImage img = XImage.FromFile("Italia.jpg");
             gfx.DrawImage(img, 0, 0);
 
             //Armado de variables
@@ -171,15 +172,25 @@ namespace transporteItalia
             gfx.DrawString(letra, fontHelvetica35, XBrushes.Black, 285, 458);
             gfx.DrawString("Código:" + tipoComprobante, fontCourier8, XBrushes.Black, 275, 471);
 
-            gfx.DrawString("Número: ", fontCourierBold10, XBrushes.Black, 386, 25);
-            gfx.DrawString(prefijo + "," + numero, fontCourierBold10, XBrushes.Black, 440, 25);
-            gfx.DrawString("Fecha: ", fontCourierBold10, XBrushes.Black, 386, 40);
-            gfx.DrawString(fecha, fontCourierBold10, XBrushes.Black, 440, 40);
+            int posy = 169;
+            int posySegundaHoja = 586;
+            foreach(string cuerpo in cuerpos)
+            {
+                gfx.DrawString(cuerpo, fontCourier10, XBrushes.Black, 30, posy+=10);
+                gfx.DrawString(cuerpo, fontCourier10, XBrushes.Black, 30, posySegundaHoja += 10);
+            }
 
-            gfx.DrawString("Número: ", fontCourierBold10, XBrushes.Black, 386, 443);
-            gfx.DrawString(prefijo + "," + numero, fontCourierBold10, XBrushes.Black, 440, 443);
-            gfx.DrawString("Fecha: ", fontCourierBold10, XBrushes.Black, 386, 458);
-            gfx.DrawString(fecha, fontCourierBold10, XBrushes.Black, 440, 458);
+            gfx.DrawString("FACTURA", fontCourierBold14, XBrushes.Black, 433, 25);
+            gfx.DrawString("Número: ", fontCourierBold10, XBrushes.Black, 396, 38);
+            gfx.DrawString(prefijo + "." + numero, fontCourierBold10, XBrushes.Black, 450, 38);
+            gfx.DrawString("Fecha: ", fontCourierBold10, XBrushes.Black, 396, 47);
+            gfx.DrawString(fecha, fontCourierBold10, XBrushes.Black, 450, 47);
+
+            gfx.DrawString("FACTURA", fontCourierBold14, XBrushes.Black, 433, 442);
+            gfx.DrawString("Número: ", fontCourierBold10, XBrushes.Black, 396, 453);
+            gfx.DrawString(prefijo + "." + numero, fontCourierBold10, XBrushes.Black, 450, 453);
+            gfx.DrawString("Fecha: ", fontCourierBold10, XBrushes.Black, 396, 462);
+            gfx.DrawString(fecha, fontCourierBold10, XBrushes.Black, 450, 462);
 
 
             if (loDaVuelta == "N" || loDaVuelta == "n")
@@ -195,13 +206,13 @@ namespace transporteItalia
                 DrawQR(gfx, fecha, re_cuit, Int32.Parse(prefijo), Int32.Parse(tipoComprobante), Int32.Parse(numero), Double.Parse(total), cae);
             }
 
-            gfx.DrawString("REDESPACHAR POR: ", fontCourier10, XBrushes.Black, 26, 385);
-            gfx.DrawString(redespacho, fontCourier10, XBrushes.Black, 140, 385);
-            gfx.DrawString("REDESPACHAR POR: ", fontCourier10, XBrushes.Black, 26, 800);
-            gfx.DrawString(redespacho, fontCourier10, XBrushes.Black, 140, 800);
+            gfx.DrawString("REDESPACHAR POR: ", fontCourierBold9, XBrushes.Black, 26, 385);
+            gfx.DrawString(redespacho, fontCourier9, XBrushes.Black, 140, 385);
+            gfx.DrawString("REDESPACHAR POR: ", fontCourierBold9, XBrushes.Black, 26, 800);
+            gfx.DrawString(redespacho, fontCourier9, XBrushes.Black, 140, 800);
 
 
-            int posy = 340;
+            posy = 340;
             gfx.DrawString("SUB-TOTAL: ", fontCourierBold10, XBrushes.Black, 370, posy += 15);
             gfx.DrawString("$ " + subtotal, fontCourier10, XBrushes.Black, 470, posy);
             gfx.DrawString("IVA 21%: ", fontCourier10, XBrushes.Black, 370, posy += 15);
@@ -221,26 +232,26 @@ namespace transporteItalia
             gfx.DrawString("TOTAL: ", fontCourierBold10, XBrushes.Black, 370, posy += 15);
             gfx.DrawString("$ " + total, fontCourier10, XBrushes.Black, 470, posy);
 
-            gfx.DrawString("C.A.E.: " + cae + " Vencimiento: " + caeVto, fontCourierBold9, XBrushes.Black, 30, 403);
-            gfx.DrawString("C.A.E.: " + cae + " Vencimiento: " + caeVto, fontCourierBold9, XBrushes.Black, 30, 820);
+            gfx.DrawString("C.A.E.: " + cae + " Vencimiento: " + caeVto, fontCourierBold9, XBrushes.Black, 60, 403);
+            gfx.DrawString("C.A.E.: " + cae + " Vencimiento: " + caeVto, fontCourierBold9, XBrushes.Black, 60, 820);
         }
 
         private static void drawNomDomLoc(XGraphics gfx, String nombre, String domicilio, String localidad)
         {
             int posy = 325;
-            gfx.DrawString("DESTINATARIO: ", fontCourier10, XBrushes.Black, 26, posy += 15);
-            gfx.DrawString(nombre, fontCourier10, XBrushes.Black, 140, posy);
-            gfx.DrawString("DOMICILIO: ", fontCourier10, XBrushes.Black, 26, posy += 15);
-            gfx.DrawString(domicilio, fontCourier10, XBrushes.Black, 140, posy);
-            gfx.DrawString("LOCALIDAD: ", fontCourier10, XBrushes.Black, 26, posy += 15);
-            gfx.DrawString(localidad, fontCourier10, XBrushes.Black, 140, posy);
+            gfx.DrawString("DESTINATARIO: ", fontCourierBold9, XBrushes.Black, 26, posy += 15);
+            gfx.DrawString(nombre, fontCourier9, XBrushes.Black, 140, posy);
+            gfx.DrawString("DOMICILIO: ", fontCourierBold9, XBrushes.Black, 26, posy += 15);
+            gfx.DrawString(domicilio, fontCourier9, XBrushes.Black, 140, posy);
+            gfx.DrawString("LOCALIDAD: ", fontCourierBold9, XBrushes.Black, 26, posy += 15);
+            gfx.DrawString(localidad, fontCourier9, XBrushes.Black, 140, posy);
             posy = 740;
-            gfx.DrawString("DESTINATARIO: ", fontCourier10, XBrushes.Black, 26, posy += 15);
-            gfx.DrawString(nombre, fontCourier10, XBrushes.Black, 140, posy);
-            gfx.DrawString("DOMICILIO: ", fontCourier10, XBrushes.Black, 26, posy += 15);
-            gfx.DrawString(domicilio, fontCourier10, XBrushes.Black, 140, posy);
-            gfx.DrawString("LOCALIDAD: ", fontCourier10, XBrushes.Black, 26, posy += 15);
-            gfx.DrawString(localidad, fontCourier10, XBrushes.Black, 140, posy);
+            gfx.DrawString("DESTINATARIO: ", fontCourierBold9, XBrushes.Black, 26, posy += 15);
+            gfx.DrawString(nombre, fontCourier9, XBrushes.Black, 140, posy);
+            gfx.DrawString("DOMICILIO: ", fontCourierBold9, XBrushes.Black, 26, posy += 15);
+            gfx.DrawString(domicilio, fontCourier9, XBrushes.Black, 140, posy);
+            gfx.DrawString("LOCALIDAD: ", fontCourierBold9, XBrushes.Black, 26, posy += 15);
+            gfx.DrawString(localidad, fontCourier9, XBrushes.Black, 140, posy);
         }
 
         private static void drawNomDomLocIvaCuit(XGraphics gfx, String nombre, String domicilio, String localidad, String conIva, String cuit)
@@ -319,7 +330,7 @@ namespace transporteItalia
             img.Interpolate = false;
             
             gfx.DrawImage(img, 497, 88);
-            gfx.DrawImage(img, 497, 506);
+            gfx.DrawImage(img, 497, 504);
 
 
         }
