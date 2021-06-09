@@ -9,7 +9,6 @@ using ZXing;
 using System.Drawing;
 using System.Globalization;
 using System.Text;
-using System.Reflection;
 
 namespace transporteItalia
 {
@@ -46,8 +45,8 @@ namespace transporteItalia
             }
             catch (FileNotFoundException e)
             {
-                log.Append(DateTime.Now.ToString("MM/dd/yyyy HH:mm") + " " + "PATH NOT FOUND" + "\n");
-                log.Append(DateTime.Now.ToString("MM/dd/yyyy HH:mm") + " " + e.Message + "\n");
+                log.Append(DateTime.Now.ToString("dd/MM/yyyy HH:mm") + " " + "PATH NOT FOUND" + "\n");
+                log.Append(DateTime.Now.ToString("dd/MM/yyyy HH:mm") + " " + e.Message + "\n");
                 logWrite(log);
                 throw e;
             }
@@ -55,23 +54,29 @@ namespace transporteItalia
             PdfSharp.Pdf.PdfDocument document = new PdfSharp.Pdf.PdfDocument();
             document.Info.Title = "Transporte Italia - Arrecifes";
             document.Options.FlateEncodeMode = PdfFlateEncodeMode.BestCompression;
+            string filename = "TransporteItalia_"+ DateTime.Now.ToString("ddMMMM")  + ".pdf";
+            string pathFolder = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "_PDFS");
             try
             {
                 pdfGeneratorTransItalia(textToParse, document);
+                if (!Directory.Exists(pathFolder))
+                {
+                    Directory.CreateDirectory(pathFolder);
+                }
+                document.Save(Path.Combine(pathFolder, filename));
+                System.Diagnostics.Process.Start(Path.Combine(pathFolder, filename));
+                Spire.Pdf.PdfDocument doc = new Spire.Pdf.PdfDocument();
+                doc.LoadFromFile("Italia.pdf");
+                doc.PrintSettings.PrintController = new StandardPrintController();
             }
             catch (Exception e2)
             {
-                log.Append(DateTime.Now.ToString("MM/dd/yyyy HH:mm") + " "+ e2.Message + "\n");
+                log.Append(DateTime.Now.ToString("dd/MM/yyyy HH:mm") + " "+ e2.Message + "\n");
                 logWrite(log);
                 throw e2;
             }
 
-            string filename = "Italia.pdf";
-            document.Save(filename);
-            System.Diagnostics.Process.Start(filename);
-            Spire.Pdf.PdfDocument doc = new Spire.Pdf.PdfDocument();
-            doc.LoadFromFile("Italia.pdf");
-            doc.PrintSettings.PrintController = new StandardPrintController();
+            
             //doc.Print();
             //printPDF(pathImpresion, filename);
             //File.Delete(filename);
@@ -396,8 +401,13 @@ namespace transporteItalia
 
         static void logWrite(StringBuilder log)
         {
-            //Int32 unixTimestamp = (Int32)(DateTime.Now.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
-            File.AppendAllText(System.AppDomain.CurrentDomain.BaseDirectory + "log_" + DateTime.Now.ToString("MM-dd-yyyy") + ".txt", log.ToString() + Environment.NewLine);
+            string pathFolder = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "logs");
+            if (!Directory.Exists(pathFolder))
+            {
+                Directory.CreateDirectory(pathFolder);
+            }
+            string logName = "log_" + DateTime.Now.ToString("dd-MM-yyyy") + ".txt";
+            File.AppendAllText(Path.Combine(pathFolder,logName) , log.ToString() + Environment.NewLine);
         }
     }
 }
