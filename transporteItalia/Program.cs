@@ -9,6 +9,8 @@ using ZXing;
 using System.Drawing;
 using System.Globalization;
 using System.Text;
+using System.Windows.Forms;
+using System.Runtime.InteropServices;
 
 namespace transporteItalia
 {
@@ -63,11 +65,10 @@ namespace transporteItalia
                 {
                     Directory.CreateDirectory(pathFolder);
                 }
-                document.Save(Path.Combine(pathFolder, filename));
-                System.Diagnostics.Process.Start(Path.Combine(pathFolder, filename));
-                Spire.Pdf.PdfDocument doc = new Spire.Pdf.PdfDocument();
-                doc.LoadFromFile("Italia.pdf");
-                doc.PrintSettings.PrintController = new StandardPrintController();
+                string fullPath = Path.Combine(pathFolder, filename);
+                document.Save(fullPath);
+                System.Diagnostics.Process.Start(fullPath);
+                
             }
             catch (Exception e2)
             {
@@ -76,7 +77,7 @@ namespace transporteItalia
                 throw e2;
             }
 
-            
+           
             //doc.Print();
             //printPDF(pathImpresion, filename);
             //File.Delete(filename);
@@ -86,11 +87,38 @@ namespace transporteItalia
             //string argument = "-print-to-default " + filename;
             //Process process = new Process();
             //process.StartInfo.FileName = cRun;
-            // process.StartInfo.Arguments = argument;
+            //process.StartInfo.Arguments = argument;
             //process.Start();
             //process.WaitForExit();
             //File.Delete(filename);
         }
+    
+        static void printThePutoPDF(XGraphics xgf)
+        {
+            //TAMAÑO DE A4
+            XSize pageSize = new XSize(840, 1188);
+            PrintDialog printerDialog = new PrintDialog();
+            PrinterSettings settings = new PrinterSettings();
+            printerDialog.AllowSomePages = true;
+            printerDialog.ShowHelp = false;
+            printerDialog.PrinterSettings = settings;
+            printerDialog.AllowPrintToFile = true;
+            printerDialog.PrinterSettings.PrintToFile = true;
+            var printDoc = new PrintDocument();
+            //(Graphics graphics, Rectangle marginBounds, Rectangle pageBounds, PageSettings pageSettings);
+
+            printDoc.PrintPage += new PrintPageEventArgs(new gfx XGraphics(), );
+            printDoc.PrinterSettings = printerDialog.PrinterSettings;
+            printDoc.Print();
+        }
+
+
+
+
+
+
+
+
 
 
 
