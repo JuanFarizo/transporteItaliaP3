@@ -58,16 +58,16 @@ namespace transporteItalia
             PdfSharp.Pdf.PdfDocument document = new PdfSharp.Pdf.PdfDocument();
             document.Info.Title = "Transporte Italia - Arrecifes";
             document.Options.FlateEncodeMode = PdfFlateEncodeMode.BestCompression;
-            string filename = "TransporteItalia_"+ DateTime.Now.ToString("ddMMMM")  + ".pdf";
-            string pathFolder = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "_PDFS");
             try
             {
-                pdfGeneratorTransItalia(textToParse, document);
+                String fileName = pdfGeneratorTransItalia(textToParse, document);
+                //string filename = tipoComprobante + DateTime.Now.ToString("ddMMMM")  + ".pdf";
+                string pathFolder = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "_PDFS");
                 if (!Directory.Exists(pathFolder))
                 {
                     Directory.CreateDirectory(pathFolder);
                 }
-                string fullPath = Path.Combine(pathFolder, filename);
+                string fullPath = Path.Combine(pathFolder, fileName);
                 document.Save(fullPath);
                 System.Diagnostics.Process.Start(fullPath);
                 
@@ -108,7 +108,7 @@ namespace transporteItalia
             return string.Empty;
         }
 
-        private static void pdfGeneratorTransItalia(string pagina, PdfSharp.Pdf.PdfDocument document) 
+        private static String pdfGeneratorTransItalia(string pagina, PdfSharp.Pdf.PdfDocument document) 
         {
             if (pagina.Length != 1346)
             {
@@ -218,18 +218,20 @@ namespace transporteItalia
             gfx.DrawString("Fecha: ", fontCourierBold12, XBrushes.Black, 386, 468);
             gfx.DrawString(fecha, fontCourierBold12, XBrushes.Black, 450, 468);
 
-
+            String cuentaFileName;
             if (loDaVuelta == "N" || loDaVuelta == "n")
             {
                 drawNomDomLoc(gfx, re_nombre, re_domicilio, re_localidad);
                 drawNomDomLocIvaCuit(gfx, ma_nombre, ma_domicilio, ma_localidad, ma_condIva, ma_cuit, ma_cuenta);
                 DrawQR(gfx, fecha, ma_cuit, Int32.Parse(prefijo), Int32.Parse(tipoComprobante), Int32.Parse(numero), Double.Parse(total),cae);
+                cuentaFileName = ma_cuenta;
             }
             else
             {
                 drawNomDomLoc(gfx, ma_nombre, ma_domicilio, ma_localidad);
                 drawNomDomLocIvaCuit(gfx, re_nombre, re_domicilio, re_localidad, re_condIva, re_cuit, re_cuenta);
                 DrawQR(gfx, fecha, re_cuit, Int32.Parse(prefijo), Int32.Parse(tipoComprobante), Int32.Parse(numero), Double.Parse(total), cae);
+                cuentaFileName = re_cuenta;
             }
 
             gfx.DrawString("REDESPACHAR POR: ", fontCourierBold9, XBrushes.Black, 26, 379);
@@ -243,20 +245,19 @@ namespace transporteItalia
             gfx.DrawString("$", fontCourier11, XBrushes.Black, 485, posy -= 11);
 
 
-
             posy = 340;
             gfx.DrawString("SUB-TOTAL: ", fontCourierBold11, XBrushes.Black, 383, posy += 11);
             subtotal = FormateaPrecio(subtotal);
-            gfx.DrawString("$  " + subtotal, fontCourier11, XBrushes.Black, 485, posy);
+            gfx.DrawString("$  " + subtotal, fontCourier11, XBrushes.Black, 482, posy);
             gfx.DrawString("IVA 21%: ", fontCourier11, XBrushes.Black, 383, posy += 11);
             iva = FormateaPrecio(iva);
-            gfx.DrawString("$  " + iva, fontCourier11, XBrushes.Black, 485, posy);
+            gfx.DrawString("$  " + iva, fontCourier11, XBrushes.Black, 482, posy);
             gfx.DrawString("IVA NO I.: ", fontCourier11, XBrushes.Black, 383, posy += 11);
             //ivaNoInscripto = FormateaPrecio(ivaNoInscripto);
-            gfx.DrawString("$  " + ivaNoInscripto, fontCourier11, XBrushes.Black, 485, posy);
+            gfx.DrawString("$  " + ivaNoInscripto, fontCourier11, XBrushes.Black, 482, posy);
             gfx.DrawString("TOTAL $: ", fontCourierBold11, XBrushes.Black, 383, posy += 11);
             total = FormateaPrecio(total);
-            gfx.DrawString("$  " + total, fontCourier11, XBrushes.Black, 485, posy);
+            gfx.DrawString("$  " + total, fontCourier11, XBrushes.Black, 482, posy);
 
             posy = 752;
             gfx.DrawString("$", fontCourier11, XBrushes.Black, 485, posy);
@@ -266,16 +267,19 @@ namespace transporteItalia
 
             posy = 760;
             gfx.DrawString("SUB-TOTAL: ", fontCourierBold11, XBrushes.Black, 383, posy += 11);
-            gfx.DrawString("$  " + subtotal, fontCourier11, XBrushes.Black, 485, posy);
+            gfx.DrawString("$  " + subtotal, fontCourier11, XBrushes.Black, 482, posy);
             gfx.DrawString("IVA 21%: ", fontCourier11, XBrushes.Black, 383, posy += 11);
-            gfx.DrawString("$  " + iva, fontCourier11, XBrushes.Black, 485, posy);
+            gfx.DrawString("$  " + iva, fontCourier11, XBrushes.Black, 482, posy);
             gfx.DrawString("IVA NO I.: ", fontCourier11, XBrushes.Black, 383, posy += 11);
-            gfx.DrawString("$  " + ivaNoInscripto, fontCourier11, XBrushes.Black, 485, posy);
+            gfx.DrawString("$  " + ivaNoInscripto, fontCourier11, XBrushes.Black, 482, posy);
             gfx.DrawString("TOTAL: ", fontCourierBold11, XBrushes.Black, 383, posy += 11);
-            gfx.DrawString("$  " + total, fontCourier11, XBrushes.Black, 485, posy);
+            gfx.DrawString("$  " + total, fontCourier11, XBrushes.Black, 482, posy);
 
             gfx.DrawString("C.A.E.: " + cae + " Vencimiento: " + caeVto, fontCourierBold9, XBrushes.Black, 60, 392);
             gfx.DrawString("C.A.E.: " + cae + " Vencimiento: " + caeVto, fontCourierBold9, XBrushes.Black, 60, 812);
+
+            String fileName = tipoComprobante + "_" + letra + "_" + prefijo + "_" + numero + "_" + cuentaFileName + ".pdf";
+            return fileName; 
         }
 
         private static String FormateaPrecio(String dato)
@@ -287,6 +291,10 @@ namespace transporteItalia
             if(dato.Length == 5)
             {
                 dato = "  " + dato;
+            }
+            if(dato.Length == 4)
+            {
+                dato = "   " + dato;
             }
             return dato;
         }
@@ -314,29 +322,29 @@ namespace transporteItalia
             int posy = 103;
             gfx.DrawString(nombre, fontCourierBold12, XBrushes.Black, 26, posy+=15);
             gfx.DrawString("COND. IVA: ", fontCourierBold12, XBrushes.Black, 275, posy);
-            gfx.DrawString(conIva, fontCourierBold12, XBrushes.Black, 360, posy);
+            gfx.DrawString(conIva, fontCourierBold12, XBrushes.Black, 350, posy);
             //gfx.DrawString("DESTINATARIO: ", fontCourier10, XBrushes.Black, 26, posy += 11);
             //gfx.DrawString("DOMICILIO: ", fontCourier10, XBrushes.Black, 26, posy += 11);
             gfx.DrawString(domicilio, fontCourierBold12, XBrushes.Black, 26, posy += 11);
             gfx.DrawString("CUIT: ", fontCourierBold12, XBrushes.Black, 275, posy);
-            gfx.DrawString(cuit.Substring(0,2) + "-" + cuit.Substring(2,8) + "-" + cuit.Substring(10,1), fontCourierBold12, XBrushes.Black, 360, posy);
+            gfx.DrawString(cuit.Substring(0,2) + "-" + cuit.Substring(2,8) + "-" + cuit.Substring(10,1), fontCourierBold12, XBrushes.Black, 350, posy);
             //gfx.DrawString("LOCALIDAD: ", fontCourier10, XBrushes.Black, 26, posy += 11);
             gfx.DrawString(localidad, fontCourierBold12, XBrushes.Black, 26, posy += 11);
             gfx.DrawString("N. CUENTA: ", fontCourierBold12, XBrushes.Black, 275, posy);
-            gfx.DrawString(cuenta, fontCourierBold12, XBrushes.Black, 360, posy);
+            gfx.DrawString(cuenta, fontCourierBold12, XBrushes.Black, 350, posy);
             posy = 520;
             //gfx.DrawString("DESTINATARIO: ", fontCourier10, XBrushes.Black, 26, posy += 11);
             gfx.DrawString(nombre, fontCourierBold12, XBrushes.Black, 26, posy+=15);
             gfx.DrawString("COND. IVA: ", fontCourierBold12, XBrushes.Black, 275, posy);
-            gfx.DrawString(conIva, fontCourierBold12, XBrushes.Black, 360, posy);
+            gfx.DrawString(conIva, fontCourierBold12, XBrushes.Black, 350, posy);
             //gfx.DrawString("DOMICILIO: ", fontCourier10, XBrushes.Black, 26, posy += 11);
             gfx.DrawString(domicilio, fontCourierBold12, XBrushes.Black, 26, posy+=11);
             gfx.DrawString("CUIT: ", fontCourierBold12, XBrushes.Black, 275, posy);
-            gfx.DrawString(cuit.Substring(0, 2) + "-" + cuit.Substring(2, 8) + "-" + cuit.Substring(10, 1), fontCourierBold12, XBrushes.Black, 360, posy);
+            gfx.DrawString(cuit.Substring(0, 2) + "-" + cuit.Substring(2, 8) + "-" + cuit.Substring(10, 1), fontCourierBold12, XBrushes.Black, 350, posy);
             //gfx.DrawString("LOCALIDAD: ", fontCourier10, XBrushes.Black, 26, posy += 11);
             gfx.DrawString(localidad, fontCourierBold12, XBrushes.Black, 26, posy+=11);
             gfx.DrawString("N. CUENTA: ", fontCourierBold12, XBrushes.Black, 275, posy);
-            gfx.DrawString(cuenta, fontCourierBold12, XBrushes.Black, 360, posy);
+            gfx.DrawString(cuenta, fontCourierBold12, XBrushes.Black, 350, posy);
         }
 
         private static void DrawQR(XGraphics gfx, String fecha, String cuit, int prefijo, int tipoComp, int numero, Double importe, String cae)
