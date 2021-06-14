@@ -7,7 +7,7 @@
     <ProjectGuid>{32533458-4BE2-4966-B4CA-24E45CAF20E9}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>italia</RootNamespace>
-    <AssemblyName>it-factu</AssemblyName>
+    <AssemblyName>qr-itfac</AssemblyName>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
