@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace transporteItalia
+namespace transporteItaliaP2
 {
     class QRAfip
     {

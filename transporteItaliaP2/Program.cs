@@ -10,7 +10,7 @@ using System.Drawing;
 using System.Globalization;
 using System.Text;
 
-namespace transporteItalia
+namespace transporteItaliaP2
 {
     //TODO acomodar todo con el cuerpo mal, asi se manda y asi para corregir
     //ver para imprimir el pdf desde una libreria
