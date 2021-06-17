@@ -12,9 +12,7 @@ using System.Text;
 
 namespace transporteItaliaP3
 {
-    //TODO acomodar todo con el cuerpo mal, asi se manda y asi para corregir
-    //ver para imprimir el pdf desde una libreria
-    //qr ver los margenes
+    //TODO
     class Program
     {
 
@@ -145,8 +143,8 @@ namespace transporteItaliaP3
             String ma_condIva = pagina.Substring(pivote += 11, 15);
 
             List<string> cuerpos = new List<string>();//Tabla Cuerpo
-            cuerpos.Add(pagina.Substring(pivote += 15, 80));
-            for (int i = 0; i < 11; i++) cuerpos.Add(pagina.Substring(pivote += 80, 80));
+            cuerpos.Add(pagina.Substring(pivote += 15, 75));
+            for (int i = 0; i < 11; i++) cuerpos.Add(pagina.Substring(pivote += 75, 75));
 
             String subtotal = int.Parse(pagina.Substring(pivote += 80, 12)).ToString();
             subtotal = subtotal.Insert(subtotal.Length - 2, ".");
@@ -253,7 +251,7 @@ namespace transporteItaliaP3
             iva = FormateaPrecio(iva);
             gfx.DrawString("$  " + iva, fontCourier11, XBrushes.Black, 482, posy);
             gfx.DrawString("IVA NO I.: ", fontCourier11, XBrushes.Black, 383, posy += 11);
-            //ivaNoInscripto = FormateaPrecio(ivaNoInscripto);
+            ivaNoInscripto = FormateaPrecio(ivaNoInscripto);
             gfx.DrawString("$  " + ivaNoInscripto, fontCourier11, XBrushes.Black, 482, posy);
             gfx.DrawString("TOTAL $: ", fontCourierBold11, XBrushes.Black, 383, posy += 11);
             total = FormateaPrecio(total);
